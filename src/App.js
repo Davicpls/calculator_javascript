@@ -1,11 +1,16 @@
-import { Box, Typography, TextField, Button } from "@mui/material";
+import { Box, Typography, TextField, Button, InputBase } from "@mui/material";
 import Grid from "@mui/material/Unstable_Grid2";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+
+const math = require("mathjs");
 
 function App() {
   const [displayInput, setDisplayInput] = useState("0");
+  const [supportDisplayInput, setSupportDisplayInput] = useState("0");
 
   const handleAddNumber = (number) => {
+    let lastIndex = displayInput.length - 1;
+
     if (displayInput.length === 8) {
       return;
     }
@@ -16,7 +21,57 @@ function App() {
     }
   };
 
-  const handleAddDigit = (digit) => {};
+  const handleAddDigit = (digit) => {
+    let lastIndex = displayInput.length - 1;
+
+    let allDigits = ["-", "+", "/"];
+
+    if (displayInput.length === 8) {
+      return;
+    }
+    if (displayInput[lastIndex] === digit) {
+      return;
+    }
+    if (
+      displayInput[lastIndex] !== digit &&
+      allDigits.includes(displayInput[lastIndex])
+    ) {
+      const newString =
+        displayInput.substring(0, displayInput.length - 1) + digit;
+      setDisplayInput("0");
+      setSupportDisplayInput(newString);
+    } else {
+      setSupportDisplayInput(displayInput + digit);
+      setDisplayInput(displayInput + digit);
+    }
+  };
+
+  useEffect(() => {
+    console.log(supportDisplayInput + displayInput);
+  });
+
+  const handleGenerateResult = () => {
+    if (String(displayInput).length > 8) {
+      setDisplayInput("Err");
+    } else {
+      let result = math.evaluate(displayInput);
+
+      setSupportDisplayInput(displayInput + '=')
+      setDisplayInput(result);
+    }
+  };
+
+  const handleClearLastInput = () => {
+    let inputAsString = String(displayInput);
+
+    if (inputAsString.length === 1) {
+      setDisplayInput("0");
+      return;
+    }
+    let newInput = inputAsString.slice(0, -1);
+
+    setDisplayInput(newInput);
+  };
 
   return (
     <Box
@@ -67,6 +122,33 @@ function App() {
             px: "14px",
           }}
         >
+          <InputBase
+            sx={{
+              "& .MuiOutlinedInput-root": {
+                "& fieldset": {
+                  borderColor: "#E0E3E7",
+                },
+                "&:hover fieldset": {
+                  borderColor: "#E0E3E7",
+                },
+                "& .MuiOutlinedInput-root .MuiOutlinedInput-notchedOutline": {
+                  borderColor: "#E0E3E7 !important",
+                },
+              },
+              ml: "14px",
+              fontFamily: "JetBrains Mono, monospace",
+            }}
+            InputProps={{
+              style: {
+                textAlign: "right",
+                fontFamily: "JetBrains Mono, monospace",
+                height: "25px",
+              },
+            }}
+            disabled
+            fullWidth
+            value={supportDisplayInput}
+          ></InputBase>
           <TextField
             sx={{
               "& .MuiOutlinedInput-root": {
@@ -100,6 +182,10 @@ function App() {
                   width: "100%",
                   backgroundColor: "orange",
                 }}
+                onClick={() => {
+                  setDisplayInput("0");
+                  setSupportDisplayInput(" ");
+                }}
               >
                 AC
               </Button>
@@ -110,6 +196,9 @@ function App() {
                   height: "45px",
                   width: "100%",
                   backgroundColor: "orange",
+                }}
+                onClick={() => {
+                  handleClearLastInput();
                 }}
               >
                 C
@@ -122,6 +211,9 @@ function App() {
                   width: "100%",
                   backgroundColor: "orange",
                 }}
+                onClick={() => {
+                  handleAddDigit("+");
+                }}
               >
                 +
               </Button>
@@ -132,6 +224,9 @@ function App() {
                   height: "45px",
                   width: "100%",
                   backgroundColor: "orange",
+                }}
+                onClick={() => {
+                  handleAddDigit("-");
                 }}
               >
                 -
@@ -144,6 +239,9 @@ function App() {
                   width: "100%",
                   backgroundColor: "orange",
                 }}
+                onClick={() => {
+                  handleAddDigit("/");
+                }}
               >
                 /
               </Button>
@@ -154,6 +252,9 @@ function App() {
                   height: "45px",
                   width: "100%",
                   backgroundColor: "orange",
+                }}
+                onClick={() => {
+                  handleGenerateResult();
                 }}
               >
                 =
