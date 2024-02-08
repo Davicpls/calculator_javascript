@@ -9,12 +9,12 @@ function App() {
   const [supportDisplayInput, setSupportDisplayInput] = useState("0");
 
   const handleAddNumber = (number) => {
-    let lastIndex = displayInput.length - 1;
-
     if (displayInput.length === 8) {
       return;
     }
-    if (displayInput === "0") {
+    if (displayInput === "0" && number === "0") {
+      setDisplayInput(displayInput + number);
+    } else if (displayInput === "0") {
       setDisplayInput(number);
     } else {
       setDisplayInput(displayInput + number);
@@ -24,7 +24,7 @@ function App() {
   const handleAddDigit = (digit) => {
     let lastIndex = displayInput.length - 1;
 
-    let allDigits = ["-", "+", "/"];
+    let allDigits = ["-", "+", "/", "*"];
 
     if (displayInput.length === 8) {
       return;
@@ -46,18 +46,24 @@ function App() {
     }
   };
 
-  useEffect(() => {
-    console.log(supportDisplayInput + displayInput);
-  });
-
   const handleGenerateResult = () => {
     if (String(displayInput).length > 8) {
       setDisplayInput("Err");
     } else {
-      let result = math.evaluate(displayInput);
+      try {
+        let result = math.evaluate(displayInput);
 
-      setSupportDisplayInput(displayInput + '=')
-      setDisplayInput(result);
+        if (displayInput === String(result)) {
+          setSupportDisplayInput(displayInput + " =");
+          setDisplayInput(result);
+          return;
+        }
+
+        setSupportDisplayInput(displayInput + " =");
+        setDisplayInput(result);
+      } catch (error) {
+        console.error("Erro ao avaliar a expressão:", error);
+      }
     }
   };
 
@@ -114,7 +120,7 @@ function App() {
       >
         <Box
           sx={{
-            height: "375px",
+            height: "425px",
             width: "275px",
             backgroundColor: "grey",
             borderRadius: "7px",
@@ -240,6 +246,20 @@ function App() {
                   backgroundColor: "orange",
                 }}
                 onClick={() => {
+                  handleAddDigit("*");
+                }}
+              >
+                *
+              </Button>
+            </Grid>
+            <Grid xs={8} md={4}>
+              <Button
+                sx={{
+                  height: "45px",
+                  width: "100%",
+                  backgroundColor: "orange",
+                }}
+                onClick={() => {
                   handleAddDigit("/");
                 }}
               >
@@ -258,6 +278,20 @@ function App() {
                 }}
               >
                 =
+              </Button>
+            </Grid>
+            <Grid xs={8} md={4}>
+              <Button
+                sx={{
+                  height: "45px",
+                  width: "100%",
+                  backgroundColor: "orange",
+                }}
+                onClick={() => {
+                  handleAddNumber("0");
+                }}
+              >
+                0
               </Button>
             </Grid>
             <Grid xs={8} md={4}>
